@@ -1,0 +1,24 @@
+Filesystem             Size  Used Avail Use% Mounted on
+192.168.13.20:/shared   45G   36G  9.4G  80% /shared
+Filesystem             Size  Used Avail Use% Mounted on
+192.168.13.20:/shared   45G   36G  9.4G  80% /shared
+[Saved] /shared/home/kw459/outputs/arithmetic_bars.png
+[Saved] /shared/home/kw459/outputs/gsm8k_bars.png
+[Saved] /shared/home/kw459/outputs/mmlu_bars.png
+[Saved] /shared/home/kw459/outputs/chess_move_validity_bars.png
+[Saved] /shared/home/kw459/outputs/biographies_factuality_bars.png
+[Saved] /shared/home/kw459/outputs/gsm8k_(rag_debate)_bars.png
+[Saved] /shared/home/kw459/outputs/mmlu_(rag_debate)_bars.png
+[Saved] /shared/home/kw459/outputs/mmlu_(persona‑diverse_debate)_bars.png
+[Saved] /shared/home/kw459/outputs/ablation_agents_gsm8k.png
+[Saved] /shared/home/kw459/outputs/ablation_rounds_arith.png
+
+=== Summary (%) ===
+{'task': 'Arithmetic', 'Single': np.float64(100.0), 'Reflection': np.float64(97.0), 'Majority': np.float64(100.0), 'DebateWeighted': np.float64(100.0)}
+{'task': 'GSM8K', 'Single': np.float64(91.96), 'Reflection': np.float64(88.93), 'Majority': np.float64(93.48), 'DebateWeighted': np.float64(93.48)}
+{'task': 'MMLU', 'Single': np.float64(8.49), 'Reflection': np.float64(46.31), 'Majority': np.float64(14.76), 'DebateWeighted': np.float64(12.28)}
+{'task': 'Chess Validity', 'Single': np.float64(43.75), 'Reflection': np.float64(42.5), 'Majority': np.float64(50.0), 'DebateWeighted': np.float64(50.0)}
+{'task': 'Biographies (factuality %)', 'Single': np.float64(95.24), 'Reflection': np.float64(99.52), 'Majority': np.float64(95.24), 'DebateWeighted': np.float64(100.0)}
+{'task': 'GSM8K (RAG)', 'Single': np.float64(93.33), 'Reflection': np.float64(93.33), 'Majority': np.float64(93.33), 'DebateWeighted': np.float64(93.33)}
+{'task': 'MMLU (RAG)', 'Single': np.float64(0.0), 'Reflection': np.float64(56.67), 'Majority': np.float64(13.33), 'DebateWeighted': np.float64(13.33)}
+{'task': 'MMLU (Personas)', 'Single': np.float64(0.0), 'Reflection': np.float64(35.0), 'Majority': np.float64(8.33), 'DebateWeighted': np.float64(8.33)}
