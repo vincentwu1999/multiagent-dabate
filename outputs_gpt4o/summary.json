@@ -1,0 +1,37 @@
+[
+  {
+    "task": "arith",
+    "Single": 100.0,
+    "Reflection": 86.0,
+    "Majority": 100.0,
+    "DebateWeighted": 100.0
+  },
+  {
+    "task": "gsm8k",
+    "Single": 94.0,
+    "Reflection": 90.0,
+    "Majority": 96.0,
+    "DebateWeighted": 96.0
+  },
+  {
+    "task": "mmlu",
+    "Single": 4.0,
+    "Reflection": 56.0,
+    "Majority": 12.0,
+    "DebateWeighted": 12.0
+  },
+  {
+    "task": "chess",
+    "Single": 38.0,
+    "Reflection": 40.0,
+    "Majority": 50.0,
+    "DebateWeighted": 50.0
+  },
+  {
+    "task": "bio",
+    "Single": 44.95,
+    "Reflection": 46.27,
+    "Majority": 48.53,
+    "DebateWeighted": 48.04
+  }
+]

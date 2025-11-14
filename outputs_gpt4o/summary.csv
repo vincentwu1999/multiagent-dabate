@@ -1,0 +1,6 @@
+task,Single,Reflection,Majority,DebateWeighted
+arith,100.0,86.0,100.0,100.0
+gsm8k,94.0,90.0,96.0,96.0
+mmlu,4.0,56.0,12.0,12.0
+chess,38.0,40.0,50.0,50.0
+bio,44.95,46.27,48.53,48.04
