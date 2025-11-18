@@ -1,0 +1,4 @@
+task,Single,Reflection,Majority,DebateWeighted,FullHistory
+gsm8k,78.0,64.0,56.0,56.0,70.0
+mmlu,56.0,14.0,50.0,46.0,62.0
+bio,53.81,55.04,53.04,51.92,61.27

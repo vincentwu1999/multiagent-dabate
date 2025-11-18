@@ -107,8 +107,9 @@ class Debate:
             nums = re.findall(r"[-+]?\d*\.?\d+", t)
             return nums[-1] if nums else t
         if self.task_type == "mmlu":
-            m = re.search(r"\(([ABCD])\)\s*$", t.strip())
-            return m.group(1) if m else t
+            # Find all matches and return the last one (handles confidence line after answer)
+            matches = re.findall(r"\(([ABCD])\)", t.strip())
+            return matches[-1] if matches else t
         if self.task_type == "chess_move":
             m = re.search(r"\b14\.\s*([a-hKQRBN0O\-\=x\+#!][a-h1-8O\-x=+#]*)", t)
             return m.group(1) if m else t

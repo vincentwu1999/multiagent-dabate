@@ -21,7 +21,7 @@ def moving_average(prev: float, new: float, alpha: float = 0.2) -> float:
 # Small parsers/extractors
 num_re = re.compile(r"[-+]?\d*\.?\d+")
 int_re = re.compile(r"[-+]?\d+")
-choice_re = re.compile(r"\(([A-D])\)\s*$")
+choice_re = re.compile(r"\(([A-D])\)")
 boxed_re = re.compile(r"\\boxed\{([^}]+)\}")
 square_re = re.compile(r"\b([a-h][1-8])\b", re.I)
 
@@ -45,8 +45,10 @@ def extract_boxed_number(text: str):
         except: return None
 
 def extract_choice_letter(text: str):
-    m = choice_re.search(text.strip())
-    return m.group(1) if m else None
+    # Find all matches and return the last one (in case answer appears multiple times)
+    # This handles cases where confidence line comes after the answer
+    matches = choice_re.findall(text.strip())
+    return matches[-1] if matches else None
 
 def extract_square(text: str):
     m = square_re.findall(text.strip())

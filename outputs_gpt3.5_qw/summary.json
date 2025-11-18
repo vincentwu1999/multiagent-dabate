@@ -1,0 +1,26 @@
+[
+  {
+    "task": "gsm8k",
+    "Single": 78.0,
+    "Reflection": 64.0,
+    "Majority": 56.0,
+    "DebateWeighted": 56.0,
+    "FullHistory": 70.0
+  },
+  {
+    "task": "mmlu",
+    "Single": 56.0,
+    "Reflection": 14.0,
+    "Majority": 50.0,
+    "DebateWeighted": 46.0,
+    "FullHistory": 62.0
+  },
+  {
+    "task": "bio",
+    "Single": 53.81,
+    "Reflection": 55.04,
+    "Majority": 53.04,
+    "DebateWeighted": 51.92,
+    "FullHistory": 61.27
+  }
+]
