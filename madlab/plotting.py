@@ -3,8 +3,14 @@ import os, numpy as np, matplotlib.pyplot as plt
 def barplot_results(task_name, df, is_accuracy=True, out_dir="./outputs"):
     metrics = ["single", "reflection", "majority", "debate_weighted"]
     labels  = ["Single Agent", "Reflection", "Multi-Agent (Majority)", "Multi-Agent (Debate)"]
+    
+    # Add full_history if it exists in the dataframe
+    if "full_history" in df.columns and df["full_history"].notna().any():
+        metrics.append("full_history")
+        labels.append("Multi-Agent (Full-History)")
+    
     vals = [100.0 * df[m].mean() for m in metrics]
-    plt.figure(figsize=(6,4))
+    plt.figure(figsize=(8,4) if len(metrics) > 4 else (6,4))
     xs = np.arange(len(metrics))
     plt.bar(xs, vals)
     plt.xticks(xs, labels, rotation=15, ha="right")

@@ -125,6 +125,7 @@ def run_task_arithmetic(
     weight_rule: str = "ensemble",
     conf_cal: ConfidenceCalibrator | None = None,
     alpha: float = 0.6, beta: float = 0.2, gamma: float = 0.2, delta: float = 0.15,
+    use_full_history: bool = True,
 ) -> Dict[str, Any]:
     items = gen_arithmetic(n_items)
     agents = make_agents(llm, n_agents=3, persona_diversity=persona_diversity)
@@ -158,6 +159,24 @@ def run_task_arithmetic(
         else:
             final_majority = final_weighted = single
 
+        # Full-history method (optional)
+        full_history_result = None
+        if use_full_history:
+            weight_ctx = {
+                "verifier": _task_verifier("arithmetic", {"expr": expr}),
+                "conf_calibrator": conf_cal,
+                "alpha": alpha, "beta": beta, "gamma": gamma, "delta": delta,
+            }
+            db_fh = Debate(
+                agents=agents, task_type="arithmetic",
+                start_prompt=start_prompt, debate_prompt_tmpl="",  # Not used for full-history
+                rounds=2, weight_fn=weight_fn, weight_ctx=weight_ctx, use_weighted=use_weighted
+            )
+            full_history_result = db_fh.run_full_history()
+            final_full_history = full_history_result["final_majority"]
+        else:
+            final_full_history = None
+
         rows.append({
             "expr": expr, "gold": gold,
             "single": eval_arithmetic_item(expr, single),
@@ -169,6 +188,9 @@ def run_task_arithmetic(
             "agent_meta": _pack_json(_agent_meta(agents)),
             "agent_final_texts": _pack_json(agent_texts),
             "debate_history": _pack_json(history),
+            "full_history": eval_arithmetic_item(expr, final_full_history) if final_full_history else None,
+            "full_history_text": final_full_history if final_full_history else None,
+            "full_history_rounds": _pack_json(full_history_result["round_responses"]) if full_history_result else None,
         })
 
         if i in calib_idx:
@@ -190,6 +212,7 @@ def run_task_gsm8k(
     weight_rule: str = "ensemble",
     conf_cal: ConfidenceCalibrator | None = None,
     alpha: float = 0.6, beta: float = 0.2, gamma: float = 0.2, delta: float = 0.15,
+    use_full_history: bool = True,
 ) -> Dict[str, Any]:
     data = load_gsm8k_examples(limit=n_items)
     if not data: return {"df": pd.DataFrame(), "items": data}
@@ -226,6 +249,26 @@ def run_task_gsm8k(
         else:
             final_majority = final_weighted = single
 
+        # Full-history method (optional)
+        full_history_result = None
+        if use_full_history:
+            weight_ctx = {
+                "verifier": _task_verifier("gsm8k", {"gold": gold}),
+                "conf_calibrator": conf_cal,
+                "alpha": alpha, "beta": beta, "gamma": gamma, "delta": delta,
+            }
+            # debate_prompt_tmpl is only used as fallback for placeholder extraction
+            # The actual prompt comes from PROMPTS["gsm8k_full_history"]
+            db_fh = Debate(
+                agents=agents, task_type="gsm8k",
+                start_prompt=start_prompt, debate_prompt_tmpl="",  # Not used for full-history
+                rounds=2, weight_fn=weight_fn, weight_ctx=weight_ctx, use_weighted=use_weighted
+            )
+            full_history_result = db_fh.run_full_history()
+            final_full_history = full_history_result["final_majority"]
+        else:
+            final_full_history = None
+
         rows.append({
             "problem": prob, "gold": gold,
             "single": eval_gsm8k_item(gold, single),
@@ -237,6 +280,9 @@ def run_task_gsm8k(
             "agent_meta": _pack_json(_agent_meta(agents)),
             "agent_final_texts": _pack_json(agent_texts),
             "debate_history": _pack_json(history),
+            "full_history": eval_gsm8k_item(gold, final_full_history) if final_full_history else None,
+            "full_history_text": final_full_history if final_full_history else None,
+            "full_history_rounds": _pack_json(full_history_result["round_responses"]) if full_history_result else None,
         })
 
         if i in calib_idx:
@@ -258,6 +304,7 @@ def run_task_mmlu(
     weight_rule: str = "ensemble",
     conf_cal: ConfidenceCalibrator | None = None,
     alpha: float = 0.6, beta: float = 0.2, gamma: float = 0.2, delta: float = 0.15,
+    use_full_history: bool = True,
 ) -> Dict[str, Any]:
     data = load_mmlu_examples(limit=n_items)
     if not data: return {"df": pd.DataFrame(), "items": data}
@@ -293,6 +340,24 @@ def run_task_mmlu(
         else:
             final_majority = final_weighted = single
 
+        # Full-history method (optional)
+        full_history_result = None
+        if use_full_history:
+            weight_ctx = {
+                "verifier": _task_verifier("mmlu", {"gold": gold}),
+                "conf_calibrator": conf_cal,
+                "alpha": alpha, "beta": beta, "gamma": gamma, "delta": delta,
+            }
+            db_fh = Debate(
+                agents=agents, task_type="mmlu",
+                start_prompt=start_prompt, debate_prompt_tmpl="",  # Not used for full-history
+                rounds=2, weight_fn=weight_fn, weight_ctx=weight_ctx, use_weighted=use_weighted
+            )
+            full_history_result = db_fh.run_full_history()
+            final_full_history = full_history_result["final_majority"]
+        else:
+            final_full_history = None
+
         rows.append({
             "question": q, "gold": gold,
             "single": eval_mmlu_item(gold, single),
@@ -304,7 +369,10 @@ def run_task_mmlu(
             "agent_meta": _pack_json(_agent_meta(agents)),
             "agent_final_texts": _pack_json(agent_texts),
             "debate_history": _pack_json(history),
-            "A": A, "B": B, "C": C, "D": D, "subject": itm.get("subject", "")
+            "A": A, "B": B, "C": C, "D": D, "subject": itm.get("subject", ""),
+            "full_history": eval_mmlu_item(gold, final_full_history) if final_full_history else None,
+            "full_history_text": final_full_history if final_full_history else None,
+            "full_history_rounds": _pack_json(full_history_result["round_responses"]) if full_history_result else None,
         })
 
         if i in calib_idx:
@@ -326,6 +394,7 @@ def run_task_chess_validity(
     weight_rule: str = "ensemble",
     conf_cal: ConfidenceCalibrator | None = None,
     alpha: float = 0.6, beta: float = 0.2, gamma: float = 0.2, delta: float = 0.15,
+    use_full_history: bool = True,
 ) -> Dict[str, Any]:
     data = load_chess_positions_for_move_validity(n_items*2)[:n_items]
     agents = make_agents(llm, n_agents=3, persona_diversity=persona_diversity)
@@ -358,6 +427,24 @@ def run_task_chess_validity(
         else:
             final_majority = final_weighted = single
 
+        # Full-history method (optional)
+        full_history_result = None
+        if use_full_history:
+            weight_ctx = {
+                "verifier": _task_verifier("chess_valid", {"fen": fen, "origin": origin}),
+                "conf_calibrator": conf_cal,
+                "alpha": alpha, "beta": beta, "gamma": gamma, "delta": delta,
+            }
+            db_fh = Debate(
+                agents=agents, task_type="chess_valid",
+                start_prompt=start, debate_prompt_tmpl="",  # Not used for full-history
+                rounds=2, weight_fn=weight_fn, weight_ctx=weight_ctx, use_weighted=use_weighted
+            )
+            full_history_result = db_fh.run_full_history()
+            final_full_history = full_history_result["final_majority"]
+        else:
+            final_full_history = None
+
         rows.append({
             "origin": origin, "fen": fen, "pgn": pgn,
             "single": eval_chess_valid_item(fen, origin, single),
@@ -369,6 +456,9 @@ def run_task_chess_validity(
             "agent_meta": _pack_json(_agent_meta(agents)),
             "agent_final_texts": _pack_json(agent_texts),
             "debate_history": _pack_json(history),
+            "full_history": eval_chess_valid_item(fen, origin, final_full_history) if final_full_history else None,
+            "full_history_text": final_full_history if final_full_history else None,
+            "full_history_rounds": _pack_json(full_history_result["round_responses"]) if full_history_result else None,
         })
 
         if i in calib_idx:
@@ -391,6 +481,7 @@ def run_task_chess_move(
     conf_cal: ConfidenceCalibrator | None = None,
     alpha: float = 0.6, beta: float = 0.2, gamma: float = 0.2, delta: float = 0.15,
     use_engine: bool = True,
+    use_full_history: bool = True,
 ) -> Dict[str, Any]:
     raw = load_chess_positions_for_move_validity(n_items*2)
     data = raw[:n_items]
@@ -427,6 +518,24 @@ def run_task_chess_move(
         else:
             final_majority = final_weighted = single
 
+        # Full-history method (optional)
+        full_history_result = None
+        if use_full_history:
+            weight_ctx = {
+                "verifier": None,
+                "conf_calibrator": conf_cal,
+                "alpha": alpha, "beta": beta, "gamma": gamma, "delta": delta,
+            }
+            db_fh = Debate(
+                agents=agents, task_type="chess_move",
+                start_prompt=start_prompt, debate_prompt_tmpl="",  # Not used for full-history
+                rounds=2, weight_fn=weight_fn, weight_ctx=weight_ctx, use_weighted=use_weighted
+            )
+            full_history_result = db_fh.run_full_history()
+            final_full_history = full_history_result["final_majority"]
+        else:
+            final_full_history = None
+
         def _legal_and_score(text: str):
             if engine is None:
                 try:
@@ -448,6 +557,7 @@ def run_task_chess_move(
         r_leg, r_cp = _legal_and_score(reflect)
         m_leg, m_cp = _legal_and_score(final_majority)
         w_leg, w_cp = _legal_and_score(final_weighted)
+        fh_leg, fh_cp = _legal_and_score(final_full_history) if final_full_history else (None, None)
 
         rows.append({
             "fen": fen, "pgn": pgn,
@@ -460,6 +570,10 @@ def run_task_chess_move(
             "agent_meta": _pack_json(_agent_meta(agents)),
             "agent_final_texts": _pack_json(agent_texts),
             "debate_history": _pack_json(history),
+            "full_history": bool(fh_leg) if fh_leg is not None else None,
+            "full_history_text": final_full_history if final_full_history else None,
+            "full_history_rounds": _pack_json(full_history_result["round_responses"]) if full_history_result else None,
+            "full_history_cp_improvement": fh_cp,
         })
 
         if i in calib_idx:
@@ -486,6 +600,7 @@ def run_task_biographies(
     weight_rule: str = "ensemble",
     conf_cal: ConfidenceCalibrator | None = None,
     alpha: float = 0.6, beta: float = 0.2, gamma: float = 0.2, delta: float = 0.15,
+    use_full_history: bool = True,
 ) -> Dict[str, Any]:
     entries = load_biography_entries(limit=n_items)
     if not entries: return {"df": pd.DataFrame(), "items": entries}
@@ -522,10 +637,29 @@ def run_task_biographies(
         else:
             final_majority = final_weighted = single
 
+        # Full-history method (optional)
+        full_history_result = None
+        if use_full_history:
+            weight_ctx = {
+                "verifier": _task_verifier("bio", {"person": person}),
+                "conf_calibrator": conf_cal,
+                "alpha": alpha, "beta": beta, "gamma": gamma, "delta": delta,
+            }
+            db_fh = Debate(
+                agents=agents, task_type="bio",
+                start_prompt=start_prompt, debate_prompt_tmpl="",  # Not used for full-history
+                rounds=2, weight_fn=weight_fn, weight_ctx=weight_ctx, use_weighted=use_weighted
+            )
+            full_history_result = db_fh.run_full_history()
+            final_full_history = full_history_result["final_majority"]
+        else:
+            final_full_history = None
+
         s_single = eval_bio_item(person, single)
         s_reflec = eval_bio_item(person, reflect)
         s_major  = eval_bio_item(person, final_majority)
         s_weight = eval_bio_item(person, final_weighted)
+        s_full_history = eval_bio_item(person, final_full_history) if final_full_history else None
 
         rows.append({
             "person": person, "reference_used": False,
@@ -536,6 +670,9 @@ def run_task_biographies(
             "agent_meta": _pack_json(_agent_meta(agents)),
             "agent_final_texts": _pack_json(agent_texts),
             "debate_history": _pack_json(history),
+            "full_history": s_full_history,
+            "full_history_text": final_full_history if final_full_history else None,
+            "full_history_rounds": _pack_json(full_history_result["round_responses"]) if full_history_result else None,
         })
 
         if i in calib_idx:
@@ -558,6 +695,7 @@ def run_task_bioasq(
     weight_rule: str = "ensemble",
     conf_cal: ConfidenceCalibrator | None = None,
     alpha: float = 0.6, beta: float = 0.2, gamma: float = 0.2, delta: float = 0.15,
+    use_full_history: bool = True,
 ) -> Dict[str, Any]:
     data = load_bioasq_examples(limit=n_items, subset=subset)
     if not data: 
@@ -601,10 +739,32 @@ def run_task_bioasq(
         else:
             final_majority = final_weighted = single
 
+        # Full-history method (optional)
+        full_history_result = None
+        if use_full_history:
+            def _vf(resp: str) -> bool:
+                sc = eval_bioasq_item(qtype, gold, resp)
+                return sc >= (0.9 if qtype in {"factoid","yesno"} else 0.7)
+            weight_ctx = {
+                "verifier": _vf,
+                "conf_calibrator": conf_cal,
+                "alpha": alpha, "beta": beta, "gamma": gamma, "delta": delta,
+            }
+            db_fh = Debate(
+                agents=agents, task_type="bioasq",
+                start_prompt=start_prompt, debate_prompt_tmpl="",  # Not used for full-history
+                rounds=2, weight_fn=weight_fn, weight_ctx=weight_ctx, use_weighted=use_weighted
+            )
+            full_history_result = db_fh.run_full_history()
+            final_full_history = full_history_result["final_majority"]
+        else:
+            final_full_history = None
+
         s_single = eval_bioasq_item(qtype, gold, single)
         s_reflec = eval_bioasq_item(qtype, gold, reflect)
         s_major  = eval_bioasq_item(qtype, gold, final_majority)
         s_weight = eval_bioasq_item(qtype, gold, final_weighted)
+        s_full_history = eval_bioasq_item(qtype, gold, final_full_history) if final_full_history else None
 
         rows.append({
             "type": qtype, "question": question, "gold_answers": _pack_json(gold),
@@ -614,6 +774,9 @@ def run_task_bioasq(
             "agent_meta": _pack_json(_agent_meta(agents)),
             "agent_final_texts": _pack_json(agent_texts),
             "debate_history": _pack_json(history),
+            "full_history": s_full_history,
+            "full_history_text": final_full_history if final_full_history else None,
+            "full_history_rounds": _pack_json(full_history_result["round_responses"]) if full_history_result else None,
         })
 
         if i in calib_idx:

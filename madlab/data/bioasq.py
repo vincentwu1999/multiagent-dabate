@@ -2,10 +2,10 @@
 import argparse, json
 import pandas as pd
 
-from .config import set_out_dir
-from .llm import LLMClient
+from ..config import set_out_dir
+from ..llm import LLMClient
 
-from .runners.core import (
+from ..runners.core import (
     run_task_arithmetic, run_task_gsm8k, run_task_mmlu,
     run_task_chess_validity, run_task_chess_move,
     run_task_biographies

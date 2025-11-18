@@ -30,6 +30,8 @@ def main():
     p.add_argument("--delta", type=float, default=0.15)
     p.add_argument("--no-weighted", action="store_true",
                    help="Disable weighted voting (use majority instead)")
+    p.add_argument("--no-full-history", action="store_true",
+                   help="Disable full-history multi-agent method (enabled by default)")
     p.add_argument("--bioasq-subset", type=str, default="all",
                help="BioASQ subset: all | factoid | yesno | list")
 
@@ -62,7 +64,8 @@ def main():
             persona_diversity=(key in {"bio","chess_move","bioasq"}),
             use_weighted=(not args.no_weighted),
             weight_rule=args.weight_rule,
-            alpha=args.alpha, beta=args.beta, gamma=args.gamma, delta=args.delta
+            alpha=args.alpha, beta=args.beta, gamma=args.gamma, delta=args.delta,
+            use_full_history=not args.no_full_history
         )
         df = res["df"]
 
@@ -80,13 +83,16 @@ def main():
             except Exception as e:
                 print(f"[WARN] Plotting skipped: {e}")
 
-        summaries.append({
+        summary_dict = {
             "task": key,
             "Single": round(df["single"].mean()*100.0, 2) if not df.empty else 0.0,
             "Reflection": round(df["reflection"].mean()*100.0, 2) if not df.empty else 0.0,
             "Majority": round(df["majority"].mean()*100.0, 2) if not df.empty else 0.0,
             "DebateWeighted": round(df["debate_weighted"].mean()*100.0, 2) if not df.empty else 0.0,
-        })
+        }
+        if "full_history" in df.columns and df["full_history"].notna().any():
+            summary_dict["FullHistory"] = round(df["full_history"].mean()*100.0, 2) if not df.empty else 0.0
+        summaries.append(summary_dict)
 
     with open(f"{out_dir}/summary.json", "w", encoding="utf-8") as f:
         json.dump(summaries, f, indent=2)
